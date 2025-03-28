@@ -54,3 +54,26 @@ node scripts/generate_resumos.js
 ```
 
 Gera resumos concisos para as pesquisas usando GPT-3.5-turbo.
+
+## Solução de Problemas
+
+### Credenciais do Firebase
+
+Se você estiver usando variáveis de ambiente para as credenciais do Firebase, certifique-se que:
+
+1. O valor é um JSON válido (sem aspas extras no início e fim)
+2. Se estiver implantando em uma plataforma como Render, a chave privada pode precisar de tratamento especial:
+
+   **Formato incorreto:**
+
+   ```
+   "private_key": "-----BEGIN PRIVATE KEY-----\\nABC...XYZ\\n-----END PRIVATE KEY-----\\n"
+   ```
+
+   **Formato correto:**
+
+   ```
+   "private_key": "-----BEGIN PRIVATE KEY-----\nABC...XYZ\n-----END PRIVATE KEY-----\n"
+   ```
+
+   O código foi modificado para tratar automaticamente essas quebras de linha, mas certifique-se de que o resto do JSON está correto.

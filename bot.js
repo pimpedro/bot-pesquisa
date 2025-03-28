@@ -13,7 +13,14 @@ console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'OK' : 'FALTANDO');
 // Inicialização do Firebase
 let firebaseAdmin;
 try {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+  let serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+  
+  // Corrigir formato da chave privada se necessário
+  if (serviceAccount.private_key && typeof serviceAccount.private_key === 'string') {
+    // Garantir que a chave privada tenha quebras de linha corretas
+    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+  }
+  
   firebaseAdmin = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });

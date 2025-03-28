@@ -4,6 +4,13 @@ const { OpenAI } = require('openai');
 
 // Inicialização do Firebase
 const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+
+// Corrigir formato da chave privada se necessário
+if (serviceAccount.private_key && typeof serviceAccount.private_key === 'string') {
+  // Garantir que a chave privada tenha quebras de linha corretas
+  serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+}
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
