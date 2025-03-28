@@ -57,23 +57,37 @@ Gera resumos concisos para as pesquisas usando GPT-3.5-turbo.
 
 ## Solução de Problemas
 
-### Credenciais do Firebase
+### Credenciais do Firebase no Render
 
-Se você estiver usando variáveis de ambiente para as credenciais do Firebase, certifique-se que:
+Para configurar corretamente as credenciais do Firebase no Render:
 
-1. O valor é um JSON válido (sem aspas extras no início e fim)
-2. Se estiver implantando em uma plataforma como Render, a chave privada pode precisar de tratamento especial:
+1. Acesse o console do Firebase e baixe o arquivo JSON de chave privada do seu projeto.
 
-   **Formato incorreto:**
+2. No dashboard do Render, vá para seu serviço web e acesse a aba "Environment".
 
-   ```
-   "private_key": "-----BEGIN PRIVATE KEY-----\\nABC...XYZ\\n-----END PRIVATE KEY-----\\n"
-   ```
+3. Adicione uma variável chamada `FIREBASE_CREDENTIALS`.
 
-   **Formato correto:**
+4. Cole o conteúdo **completo** do arquivo JSON baixado, sem aspas extras ao redor do valor.
+
+O bot inclui uma função de formatação da chave privada que lida automaticamente com problemas comuns de formato encontrados em plataformas de hospedagem, como quebras de linha incorretas.
+
+### Verificação das Credenciais
+
+Para garantir que suas credenciais estão no formato correto:
+
+1. O valor deve ser um JSON válido.
+2. Não adicione aspas extras no início e fim do valor.
+3. A chave privada deve estar no formato PEM correto.
+
+Se persistirem problemas, tente estas soluções:
+
+1. Substituir manualmente a chave privada no formato correto:
 
    ```
    "private_key": "-----BEGIN PRIVATE KEY-----\nABC...XYZ\n-----END PRIVATE KEY-----\n"
    ```
 
-   O código foi modificado para tratar automaticamente essas quebras de linha, mas certifique-se de que o resto do JSON está correto.
+2. Para o Render, você também pode tentar definir a variável de ambiente usando a CLI:
+   ```bash
+   render env set FIREBASE_CREDENTIALS="$(cat firebase-credentials.json)" --service seu-servico
+   ```

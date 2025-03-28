@@ -2,6 +2,7 @@ require('dotenv').config();
 const { App } = require('@slack/bolt');
 const { OpenAI } = require('openai');
 const admin = require('firebase-admin');
+const { processFirebaseCredentials } = require('./utils');
 
 // Debug: Verifica se as variáveis de ambiente estão definidas
 console.log('Inicializando bot com as variáveis de ambiente:');
@@ -13,13 +14,9 @@ console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'OK' : 'FALTANDO');
 // Inicialização do Firebase
 let firebaseAdmin;
 try {
-  let serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
-  
-  // Corrigir formato da chave privada se necessário
-  if (serviceAccount.private_key && typeof serviceAccount.private_key === 'string') {
-    // Garantir que a chave privada tenha quebras de linha corretas
-    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-  }
+  // Parseia as credenciais e processa para garantir o formato correto
+  const rawCredentials = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+  const serviceAccount = processFirebaseCredentials(rawCredentials);
   
   firebaseAdmin = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
