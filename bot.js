@@ -2,7 +2,8 @@ require('dotenv').config();
 const { App } = require('@slack/bolt');
 const { OpenAI } = require('openai');
 const admin = require('firebase-admin');
-const { processFirebaseCredentials } = require('./utils');
+const fs = require('fs');
+const path = require('path');
 
 // Debug: Verifica se as variáveis de ambiente estão definidas
 console.log('Inicializando bot com as variáveis de ambiente:');
@@ -11,12 +12,42 @@ console.log('SLACK_SIGNING_SECRET:', process.env.SLACK_SIGNING_SECRET ? 'OK' : '
 console.log('FIREBASE_CREDENTIALS:', process.env.FIREBASE_CREDENTIALS ? 'OK' : 'FALTANDO');
 console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'OK' : 'FALTANDO');
 
+// Função para obter as credenciais do Firebase
+function getFirebaseCredentials() {
+  // Primeira opção: Verificar se existe o arquivo de credenciais
+  const credentialPaths = [
+    path.join(__dirname, 'firebase-credentials.json'),
+    path.join(__dirname, 'config', 'firebase-credentials.json')
+  ];
+  
+  for (const credPath of credentialPaths) {
+    try {
+      if (fs.existsSync(credPath)) {
+        console.log(`Usando credenciais do arquivo: ${credPath}`);
+        return JSON.parse(fs.readFileSync(credPath, 'utf8'));
+      }
+    } catch (err) {
+      console.log(`Erro ao ler ${credPath}: ${err.message}`);
+    }
+  }
+  
+  // Segunda opção: Usar a variável de ambiente
+  if (process.env.FIREBASE_CREDENTIALS) {
+    try {
+      console.log('Usando credenciais da variável de ambiente FIREBASE_CREDENTIALS');
+      return JSON.parse(process.env.FIREBASE_CREDENTIALS);
+    } catch (err) {
+      console.log(`Erro ao parsear FIREBASE_CREDENTIALS: ${err.message}`);
+    }
+  }
+  
+  throw new Error('Nenhuma credencial válida do Firebase encontrada');
+}
+
 // Inicialização do Firebase
 let firebaseAdmin;
 try {
-  // Parseia as credenciais e processa para garantir o formato correto
-  const rawCredentials = JSON.parse(process.env.FIREBASE_CREDENTIALS);
-  const serviceAccount = processFirebaseCredentials(rawCredentials);
+  const serviceAccount = getFirebaseCredentials();
   
   firebaseAdmin = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)

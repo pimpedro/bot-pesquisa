@@ -55,39 +55,58 @@ node scripts/generate_resumos.js
 
 Gera resumos concisos para as pesquisas usando GPT-3.5-turbo.
 
+## Deploy no Render
+
+Para fazer o deploy do bot no Render, você tem duas opções para configurar as credenciais do Firebase:
+
+### Opção 1: Usar o arquivo de credenciais (Recomendado)
+
+1. Obtenha o arquivo JSON de credenciais do Firebase:
+
+   - Acesse o [Console do Firebase](https://console.firebase.google.com/)
+   - Selecione seu projeto
+   - Clique em "⚙️ Configurações" > "Configurações do projeto"
+   - Vá para a aba "Contas de serviço"
+   - Clique em "Gerar nova chave privada"
+   - Baixe o arquivo JSON
+
+2. Codifique o arquivo em base64:
+
+   ```bash
+   base64 -i firebase-credentials.json
+   ```
+
+   Copie todo o texto de saída.
+
+3. No dashboard do Render:
+   - Configure o serviço para usar o seguinte Build Command:
+     ```bash
+     npm install && ./render-build.sh
+     ```
+   - Configure o Start Command:
+     ```bash
+     npm start
+     ```
+   - Adicione a variável de ambiente `FIREBASE_CREDENTIALS_BASE64` com o conteúdo base64 copiado anteriormente
+
+O script `render-build.sh` irá:
+
+- Decodificar o conteúdo base64
+- Salvar como um arquivo JSON em `config/firebase-credentials.json`
+- O bot usará automaticamente este arquivo em vez da variável de ambiente
+
+### Opção 2: Usar a variável de ambiente
+
+Se preferir não usar o arquivo, você pode:
+
+1. Adicionar a variável de ambiente `FIREBASE_CREDENTIALS` com o conteúdo completo do arquivo JSON.
+
+2. O bot tentará usar esta variável caso não encontre o arquivo de credenciais.
+
 ## Solução de Problemas
 
-### Credenciais do Firebase no Render
+Se encontrar o erro `Failed to parse private key: Error: Invalid PEM formatted message`, tente:
 
-Para configurar corretamente as credenciais do Firebase no Render:
-
-1. Acesse o console do Firebase e baixe o arquivo JSON de chave privada do seu projeto.
-
-2. No dashboard do Render, vá para seu serviço web e acesse a aba "Environment".
-
-3. Adicione uma variável chamada `FIREBASE_CREDENTIALS`.
-
-4. Cole o conteúdo **completo** do arquivo JSON baixado, sem aspas extras ao redor do valor.
-
-O bot inclui uma função de formatação da chave privada que lida automaticamente com problemas comuns de formato encontrados em plataformas de hospedagem, como quebras de linha incorretas.
-
-### Verificação das Credenciais
-
-Para garantir que suas credenciais estão no formato correto:
-
-1. O valor deve ser um JSON válido.
-2. Não adicione aspas extras no início e fim do valor.
-3. A chave privada deve estar no formato PEM correto.
-
-Se persistirem problemas, tente estas soluções:
-
-1. Substituir manualmente a chave privada no formato correto:
-
-   ```
-   "private_key": "-----BEGIN PRIVATE KEY-----\nABC...XYZ\n-----END PRIVATE KEY-----\n"
-   ```
-
-2. Para o Render, você também pode tentar definir a variável de ambiente usando a CLI:
-   ```bash
-   render env set FIREBASE_CREDENTIALS="$(cat firebase-credentials.json)" --service seu-servico
-   ```
+1. Usar a Opção 1 (arquivo de credenciais) descrita acima
+2. Verificar se o JSON está corretamente formatado
+3. Se usar a variável de ambiente, certifique-se de que não há aspas extras ao redor do valor
