@@ -26,3 +26,31 @@ npm start
 ```
 
 O bot responderá a menções no Slack com análises das pesquisas disponíveis.
+
+## Scripts de Utilidade
+
+Na pasta `scripts/` você encontrará os seguintes utilitários:
+
+### Importação de Transcripts
+
+```bash
+node scripts/import_transcripts.js
+```
+
+Importa os arquivos de transcript da pasta `transcripts/` para o Firestore, gerando embeddings para cada pesquisa.
+
+### Geração de Embeddings
+
+```bash
+node scripts/generate_embeddings.js
+```
+
+Gera embeddings para pesquisas que ainda não possuem, usando o modelo text-embedding-ada-002.
+
+### Geração de Resumos
+
+```bash
+node scripts/generate_resumos.js
+```
+
+Gera resumos concisos para as pesquisas usando GPT-3.5-turbo.
