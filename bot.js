@@ -4,6 +4,7 @@ const { OpenAI } = require('openai');
 const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
+const express = require('express');
 
 // Debug: Verifica se as variáveis de ambiente estão definidas
 console.log('Inicializando bot com as variáveis de ambiente:');
@@ -74,6 +75,14 @@ const openai = new OpenAI({
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET
+});
+
+// Adicionar express se ainda não tiver
+const expressApp = express();
+
+// Rota de health check
+expressApp.get('/health', (req, res) => {
+  res.status(200).send('OK');
 });
 
 // Função para buscar pesquisas relevantes
@@ -173,13 +182,8 @@ app.event('app_mention', async ({ event, say }) => {
   }
 });
 
-// Iniciar o bot
-(async () => {
-  try {
-    await app.start(process.env.PORT || 3000);
-    console.log('⚡️ Bot está rodando!');
-  } catch (error) {
-    console.error('Erro ao iniciar o bot:', error);
-    process.exit(1);
-  }
-})();
+// Iniciar o servidor
+const PORT = process.env.PORT || 3000;
+expressApp.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
