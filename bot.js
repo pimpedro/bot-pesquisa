@@ -44,13 +44,19 @@ function getFirebaseCredentials() {
   throw new Error('Nenhuma credencial válida do Firebase encontrada');
 }
 
+// Decodifica as credenciais do Firebase de base64
+const firebaseCredentialsBase64 = process.env.FIREBASE_CREDENTIALS;
+const firebaseCredentials = JSON.parse(
+  Buffer.from(firebaseCredentialsBase64, 'base64').toString()
+);
+
+console.log('Credenciais decodificadas:', JSON.stringify(firebaseCredentials, null, 2));
+
 // Inicialização do Firebase
 let firebaseAdmin;
 try {
-  const serviceAccount = getFirebaseCredentials();
-  
   firebaseAdmin = admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+    credential: admin.credential.cert(firebaseCredentials)
   });
   console.log('✅ Firebase inicializado com sucesso');
 } catch (error) {
